@@ -4,6 +4,14 @@ import urllib.request
 import time
 from bs4 import BeautifulSoup
 
+#file_list = open("list_companies.txt","w+")
+
+
+
+
+
+
+
 # Set the URL you want to webscrape from
 url = 'https://www.advfn.com/nasdaq/nasdaq.asp?companies=A'
 
@@ -13,25 +21,51 @@ response = requests.get(url)
 # Parse HTML and save to BeautifulSoup object¶
 soup = BeautifulSoup(response.text, "html.parser")
 
-# To download the whole data set, let's do a for loop through all a tags
-#for i in range(36,len(soup.findAll('a'))+1): #'a' tags are for links
-    #one_a_tag = soup.findAll('a')[i]
-    #link = one_a_tag['href']
-    #download_url = 'http://web.mta.info/developers/'+ link
-    #urllib.request.urlretrieve(download_url,'./'+link[link.find('/turnstile_')+1:]) 
-    #time.sleep(1) #pause the code for a sec
-#s = str(soup.find_all('td')[29])
-#print(s)
-#indices_start = [i for i, x in enumerate(s) if x == ">"]
-#print(indices_start[1])
-#indices_end = [i for i, x in enumerate(s) if x == "<"]
-#print(indices_end[2])
-#res=""
-#for i in range(indices_start[1]+1,indices_end[2]):
-#    res=res+s[i]
-#print(res)
-#########################
-#list_companies = [] (11) 12 13 (14) 15 16 (17) ... (878)//  ((881))
 
-s = str(soup.find_all('td')[882])
-print(s)
+#########################
+#list_companies = [] (11) 12 13 (14) 15 16 (17).....(23)
+#                    (29) 30 31 (32)...... .........(68)
+#                    (74)...........................(83)
+#                    (89) ..........................(89)
+#                    (95)...........................(128)
+#                    ()
+#                    
+#  ... (878)//  ((881))
+
+ 
+def index_of_start(s):
+    return [i for i, x in enumerate(s) if x == ">"]
+
+def index_of_end(s):
+    return [i for i, x in enumerate(s) if x == "<"]
+
+def delete_space(s):
+    i = len(s)
+    if s[i-1] == ' ':
+        return s[:i-1]
+    else: return s
+
+
+last_soup_phrase = 882
+first_soup_phrase = 11
+list_companies = []
+i = first_soup_phrase
+#scrapping line by line the exact name of the company in the web page.
+while i < last_soup_phrase :
+    #phrase contains the hole line of html of one company
+    phrase = str(soup.find_all('td')[i])
+    if phrase[18] != 'a':
+        i +=3
+    else:
+        #location of the name inside phrase
+        name = ""
+        for j in range( index_of_start(phrase)[1]+1 , index_of_end(phrase)[2] ):
+            name =name + phrase[j]
+        list_companies.append(delete_space(name))
+        i +=3
+print(list_companies)
+
+
+
+
+
